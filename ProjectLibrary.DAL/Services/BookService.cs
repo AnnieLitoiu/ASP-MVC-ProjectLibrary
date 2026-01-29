@@ -34,22 +34,80 @@ namespace ProjectLibrary.DAL.Services
 
         public Book Get(Guid bookId)
         {
-            throw new NotImplementedException();
+            using (SqlConnection connection = new SqlConnection(_connectionString))
+            {
+                using (SqlCommand command = connection.CreateCommand())
+                {
+                    command.CommandText = "SP_Book_Get_ById";
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.Parameters.AddWithValue(nameof(bookId), bookId);
+                    connection.Open();
+                    using (SqlDataReader reader = command.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            return reader.ToBook();
+                        }
+                        throw new ArgumentOutOfRangeException(nameof(bookId));
+                    }
+                    connection.Close();
+                }
+            }
         }
 
         public Guid Create(Book entity)
         {
-            throw new NotImplementedException();
+            using (SqlConnection connection = new SqlConnection(_connectionString))
+            {
+                using (SqlCommand command = connection.CreateCommand())
+                {
+                    command.CommandText = "SP_Book_Insert";
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.Parameters.AddWithValue(nameof(Book.Title), entity.Title);
+                    command.Parameters.AddWithValue(nameof(Book.ReleaseDate), entity.ReleaseDate);
+                    command.Parameters.AddWithValue(nameof(Book.ISBN), (object?)entity.ISBN ?? DBNull.Value);
+                    command.Parameters.AddWithValue(nameof(Book.Author), (object?)entity.Author ?? DBNull.Value);
+                    connection.Open();
+                    return (Guid)command.ExecuteScalar();
+                    connection.Close();
+                }
+            }
         }
 
         public void Update(Guid bookId, Book newData)
         {
-            throw new NotImplementedException();
+            using (SqlConnection connection = new SqlConnection(_connectionString))
+            {
+                using (SqlCommand command = connection.CreateCommand())
+                {
+                    command.CommandText = "SP_Book_Update";
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.Parameters.AddWithValue(nameof(bookId), bookId);
+                    command.Parameters.AddWithValue(nameof(Book.Title), newData.Title);
+                    command.Parameters.AddWithValue(nameof(Book.ReleaseDate), newData.ReleaseDate);
+                    command.Parameters.AddWithValue(nameof(Book.ISBN), (object?)newData.ISBN ?? DBNull.Value);
+                    command.Parameters.AddWithValue(nameof(Book.Author), (object?)newData.Author ?? DBNull.Value);
+                    connection.Open();
+                    command.ExecuteNonQuery();
+                    connection.Close();
+                }
+            }
         }
 
         public void Delete(Guid bookId)
         {
-            throw new NotImplementedException();
+            using (SqlConnection connection = new SqlConnection(_connectionString))
+            {
+                using (SqlCommand command = connection.CreateCommand())
+                {
+                    command.CommandText = "SP_Book_Delete";
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.Parameters.AddWithValue(nameof(bookId), bookId);
+                    connection.Open();
+                    command.ExecuteNonQuery();
+                    connection.Close();
+                }
+            }
         }
     }
 }
