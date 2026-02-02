@@ -1,115 +1,44 @@
-﻿using Microsoft.Data.SqlClient;
-using ProjectLibrary.DAL.Entities;
-using ProjectLibrary.DAL.Mappers;
+﻿using ProjectLibrary.BLL.Entities;
+using ProjectLibrary.BLL.Mappers;
 using System;
 using System.Collections.Generic;
-using System.Data;
+using System.Linq;
 using System.Text;
 
-namespace ProjectLibrary.DAL.Services
+namespace ProjectLibrary.BLL.Services
 {
     public class UserProfileService
     {
-        private readonly string _connectionString = @"Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=ProjectLibrary;Integrated Security=True";
+        private readonly DAL.Services.UserProfileService _dalService;
+
+        public UserProfileService(DAL.Services.UserProfileService dalService)
+        {
+            _dalService = dalService;
+        }
 
         public IEnumerable<UserProfile> Get()
         {
-            using (SqlConnection connection = new SqlConnection(_connectionString))
-            {
-                using (SqlCommand command = connection.CreateCommand())
-                {
-                    command.CommandText = "SP_UserProfile_Get_All";
-                    command.CommandType = CommandType.StoredProcedure;
-                    connection.Open();
-                    using (SqlDataReader reader = command.ExecuteReader())
-                    {
-                        while (reader.Read())
-                        {
-                            yield return reader.ToUserProfile();
-                        }
-                    }
-                    connection.Close();
-                }
-            }
+            return _dalService.Get().Select(dal => dal.ToBLL());
         }
 
         public UserProfile Get(Guid userProfileId)
         {
-            using (SqlConnection connection = new SqlConnection(_connectionString))
-            {
-                using (SqlCommand command = connection.CreateCommand())
-                {
-                    command.CommandText = "SP_UserProfile_Get_ById";
-                    command.CommandType = CommandType.StoredProcedure;
-                    command.Parameters.AddWithValue(nameof(userProfileId), userProfileId);
-                    connection.Open();
-                    using (SqlDataReader reader = command.ExecuteReader())
-                    {
-                        if (reader.Read())
-                        {
-                            return reader.ToUserProfile();
-                        }
-                        throw new ArgumentOutOfRangeException(nameof(userProfileId));
-                    }
-                    connection.Close();
-                }
-            }
+            return _dalService.Get(userProfileId).ToBLL();
         }
 
         public Guid Create(UserProfile entity)
         {
-            using (SqlConnection connection = new SqlConnection(_connectionString))
-            {
-                using (SqlCommand command = connection.CreateCommand())
-                {
-                    command.CommandText = "SP_UserProfile_Insert";
-                    command.CommandType = CommandType.StoredProcedure;
-                    command.Parameters.AddWithValue(nameof(UserProfile.LastName), entity.LastName);
-                    command.Parameters.AddWithValue(nameof(UserProfile.FirstName), entity.FirstName);
-                    command.Parameters.AddWithValue(nameof(UserProfile.BirthDate), entity.BirthDate);
-                    command.Parameters.AddWithValue(nameof(UserProfile.Biography), (object?)entity.Biography ?? DBNull.Value);
-                    command.Parameters.AddWithValue(nameof(UserProfile.ReadingSkill), (object?)entity.ReadingSkill ?? DBNull.Value);
-                    command.Parameters.AddWithValue(nameof(UserProfile.NewsLetterSubscribed), entity.NewsLetterSubscribed);
-                    connection.Open();
-                    return (Guid)command.ExecuteScalar();
-                    connection.Close();
-                }
-            }
+            return _dalService.Create(entity.ToDAL());
         }
 
         public void Update(Guid userProfileId, UserProfile newData)
         {
-            using (SqlConnection connection = new SqlConnection(_connectionString))
-            {
-                using (SqlCommand command = connection.CreateCommand())
-                {
-                    command.CommandText = "SP_UserProfile_Update";
-                    command.CommandType = CommandType.StoredProcedure;
-                    command.Parameters.AddWithValue(nameof(userProfileId), userProfileId);
-                    command.Parameters.AddWithValue(nameof(UserProfile.Biography), (object?)newData.Biography ?? DBNull.Value);
-                    command.Parameters.AddWithValue(nameof(UserProfile.ReadingSkill), (object?)newData.ReadingSkill ?? DBNull.Value);
-                    command.Parameters.AddWithValue(nameof(UserProfile.NewsLetterSubscribed), newData.NewsLetterSubscribed);
-                    connection.Open();
-                    command.ExecuteNonQuery();
-                    connection.Close();
-                }
-            }
+            _dalService.Update(userProfileId, newData.ToDAL());
         }
 
         public void Delete(Guid userProfileId)
         {
-            using (SqlConnection connection = new SqlConnection(_connectionString))
-            {
-                using (SqlCommand command = connection.CreateCommand())
-                {
-                    command.CommandText = "SP_UserProfile_Delete";
-                    command.CommandType = CommandType.StoredProcedure;
-                    command.Parameters.AddWithValue(nameof(userProfileId), userProfileId);
-                    connection.Open();
-                    command.ExecuteNonQuery();
-                    connection.Close();
-                }
-            }
+            _dalService.Delete(userProfileId);
         }
     }
 }
