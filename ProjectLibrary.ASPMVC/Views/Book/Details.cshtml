@@ -1,0 +1,59 @@
+﻿@using ProjectLibrary.ASPMVC.Handlers
+@inject RentSessionManager rentSession
+
+@model ProjectLibrary.ASPMVC.Models.Book.DetailsViewModel
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<h1>Details</h1>
+
+<div>
+    <h4>DetailsViewModel</h4>
+    <hr />
+    <dl class="row">
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Title)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Title)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Author)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Author)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.ISBN)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.ISBN)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.ReleaseDate)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.ReleaseDate)
+        </dd>
+    </dl>
+</div>
+@if (rentSession.ContainsBook(Model.BookId))
+{
+    <form method="post" asp-action="Remove" asp-controller="Rent" asp-route-BookId="@Model.BookId">
+        <button type="submit" class="btn btn-outline-dark">Retirer</button>
+    </form>
+}
+else
+{
+<form method="post" asp-action="Add" asp-controller="Rent" asp-route-BookId="@Model.BookId">
+    @* Si pas d'attribut asp-route-###, alors passer par un input hidden *@
+    @* <input type="hidden" name="BookId" value="@Model.BookId" /> *@
+    <button type="submit" class="btn btn-outline-secondary">Emprunter</button>
+</form>   
+}
+<div>
+    @Html.ActionLink("Edit", "Edit", new { /* id = Model.PrimaryKey */ }) |
+    <a asp-action="Index">Back to List</a>
+</div>

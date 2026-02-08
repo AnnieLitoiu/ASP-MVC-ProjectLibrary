@@ -43,10 +43,10 @@ namespace ProjectLibrary.BLL.Mappers
 
         #region UserProfile
 
-        public static BLL.Entities.UserProfile ToBLL(this DAL.Entities.UserProfile entity)
+        public static BLL.Entities.UserProfile ToBLL(this DAL.Entities.UserProfile entity, BLL.Entities.Book? book = null)
         {
             if (entity is null) throw new ArgumentNullException(nameof(entity));
-            return new BLL.Entities.UserProfile(
+            BLL.Entities.UserProfile userProfile =  new BLL.Entities.UserProfile(
                 entity.UserProfileId,
                 entity.LastName,
                 entity.FirstName,
@@ -57,23 +57,49 @@ namespace ProjectLibrary.BLL.Mappers
                 entity.RegisteredDate,
                 entity.DisabledDate
                 );
+            userProfile.FavoriteBook = book;
+            return userProfile;
         }
 
         public static DAL.Entities.UserProfile ToDAL(this BLL.Entities.UserProfile entity)
         {
             if (entity is null) throw new ArgumentNullException(nameof(entity));
-            return new DAL.Entities.UserProfile()
-            {
+            return new DAL.Entities.UserProfile() { 
                 UserProfileId = entity.UserProfileId,
                 LastName = entity.LastName,
                 FirstName = entity.FirstName,
                 BirthDate = entity.BirthDate,
                 Biography = entity.Biography,
                 ReadingSkill = (byte?)entity.ReadingSkill,
+                FavoriteBook = entity.FavoriteBook?.BookId,
                 NewsLetterSubscribed = entity.NewsLetterSubscribed,
                 RegisteredDate = entity.RegisteredDate,
                 DisabledDate = entity.DisabledDate
             };
+        }
+        #endregion
+
+        #region User
+        public static BLL.Entities.User ToBLL(this DAL.Entities.User entity)
+        {
+            if (entity is null) throw new ArgumentNullException(nameof(entity));
+            return new BLL.Entities.User(
+                entity.UserId,
+                entity.Email,
+                entity.Password,
+                entity.RegisteredDate,
+                entity.DisabledDate);
+        }
+        public static DAL.Entities.User ToDAL(this BLL.Entities.User entity)
+        {
+            if (entity is null) throw new ArgumentNullException(nameof(entity));
+            return new DAL.Entities.User() {
+                UserId = entity.UserId,
+                Email = entity.Email,
+                Password = entity.Password,
+                RegisteredDate = entity.RegisteredDate,
+                DisabledDate = entity.DisabledDate
+                };
         }
         #endregion
     }
